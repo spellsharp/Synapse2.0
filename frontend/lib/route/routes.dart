@@ -6,7 +6,7 @@ class Routes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case RouteNames.inputVideo:
-        return MaterialPageRoute(builder: (_) => const InputVideoFeed());
+        return MaterialPageRoute(builder: (_) => InputVideoFeed());
 
       default:
         return MaterialPageRoute(builder: (_) {
