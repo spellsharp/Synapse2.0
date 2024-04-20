@@ -38,6 +38,11 @@ class FindLaneLines:
         out_img = cv2.addWeighted(out_img, 1, img, 0.6, 0)
         out_img = self.lanelines.plot(out_img)
         return out_img
+    
+    def object_forward(self, img):
+        out_img = np.copy(img)
+        out_img = detect_vehicles(img)
+        return out_img
 
     def process_image(self, input_path, output_path):
         img = mpimg.imread(input_path)
@@ -51,29 +56,35 @@ class FindLaneLines:
         # out_clip = detect_vehicles(out_clip)
         out_clip.write_videofile(output_path, audio=False)
 
-    def process_stream(self, input_stream):
-        cap = cv2.VideoCapture(input_stream)
-        frame_count = 0
-        while(cap.isOpened()):
-            frame_count += 1
-            ret, frame = cap.read()
-            if ret:
-                out_frame = self.forward(frame)
-                out_frame = cv2.resize(out_frame, (640, 480))
-                if frame_count % 30 == 0:
-                    out_frame = detect_vehicles(out_frame)
-                cv2.imshow('Lane Detection', out_frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-            else:
-                break
+        clip = VideoFileClip(output_path)
+        out_clip = clip.fl_image(self.object_forward)
+        out_clip.write_videofile(output_path, audio=False)
 
-        cap.release()
-        cv2.destroyAllWindows()
+    # def process_stream(self, input_stream):
+    #     cap = cv2.VideoCapture(input_stream)
+    #     frame_count = 0
+    #     while(cap.isOpened()):
+    #         frame_count += 1
+    #         ret, frame = cap.read()
+    #         if ret:
+    #             out_frame = self.forward(frame)
+    #             out_frame = cv2.resize(out_frame, (640, 480))
+    #             if frame_count % 30 == 0:
+    #                 out_frame = detect_vehicles(out_frame)
+    #             cv2.imshow('Lane Detection', out_frame)
+    #             if cv2.waitKey(1) & 0xFF == ord('q'):
+    #                 break
+    #         else:
+    #             break
 
-def main():
+    #     cap.release()
+    #     cv2.destroyAllWindows()
+
+def detect(path="model/Lane_and_Object_Detection/input_videos/challenge_video.mp4", output="model/Lane_and_Object_Detection/output_videos/challenge_video_output.mp4"):
     findLaneLines = FindLaneLines()
-    findLaneLines.process_video("model/Lane_and_Object_Detection/input_videos/challenge_video.mp4", "model/Lane_and_Object_Detection/output_videos/challenge_video_output.mp4")
+    findLaneLines.process_video(path, output)
+    # findLaneLines.process_video(path, output)
+    return output
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    output = detect()
